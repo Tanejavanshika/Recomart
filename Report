@@ -106,3 +106,100 @@ In case of failure, detailed error messages are recorded for debugging and recov
 
 The data ingestion pipeline provides a scalable and maintainable foundation for RecoMart’s recommendation system. By supporting multi-source ingestion, automated execution, timestamped storage, and operational logging, the pipeline ensures that fresh and reliable data is always available for downstream analytics and model training.
 
+# **Task 3: Raw Data Storage
+3.1 Overview
+
+A raw data lake is implemented to store all ingested datasets in their original format before any transformation or processing is applied. This layer serves as the single source of truth for the entire data pipeline and enables reproducibility, auditing, and reprocessing.
+
+The data lake is implemented using a local filesystem, simulating cloud-based storage systems such as AWS S3 or Azure Data Lake.
+
+3.2 Storage Architecture
+
+The storage architecture follows a partitioned, timestamp-based directory structure. Each ingestion run creates a new folder, which contains a full snapshot of all data sources.
+
+Storage Design
+data/raw/{YYYY-MM-DD_HH-MM-SS}/
+    ├── user_interactions.csv
+    ├── transactions.csv
+    ├── products.json
+    └── external_signals.csv
+
+
+Each folder represents a single batch ingestion.
+
+3.3 Design Principles
+
+The raw data storage layer follows these design principles:
+
+Immutable Storage: Raw data is never modified after ingestion
+
+Partitioning by Time: Enables efficient tracking and rollback
+
+Schema Preservation: Data is stored exactly as received
+
+Scalability: Can be easily migrated to cloud object storage
+
+3.4 Benefits
+
+This design enables:
+
+Historical data tracking
+
+Reprocessing of past data if needed
+
+Debugging and auditing of ingestion runs
+
+Support for machine learning reproducibility
+
+3.5 Summary
+
+The raw data lake provides a robust foundation for the recommendation system pipeline. By preserving original data in a structured and versioned format, it ensures reliable downstream validation, transformation, and model training.
+
+## Task 4: Data Profiling and Validation
+4.1 Overview
+
+A data profiling and validation layer was implemented to ensure that only high-quality data is consumed by the recommendation system. This layer acts as a quality gate between the raw data lake and downstream analytics and machine learning pipelines.
+
+4.2 Validation Checks
+
+The following automated validation checks were implemented:
+
+Missing value detection
+
+Duplicate record detection
+
+Schema verification
+
+Range validation for numeric fields
+
+4.3 Validation Architecture
+Raw Data  →  Validation Engine  →  Validated Data Layer
+
+
+Only validated datasets are promoted to the next stage of the pipeline.
+
+4.4 Validated Data Storage
+
+Validated datasets are stored separately:
+
+data/validated/
+    ├── user_interactions.csv
+    └── transactions.csv
+
+
+This ensures downstream processes only use trusted data.
+
+4.5 Benefits
+
+Prevents corrupt data from entering models
+
+Improves data reliability
+
+Enables auditability and traceability
+
+Supports reproducibility
+
+4.6 Summary
+
+The validation layer ensures RecoMart’s recommendation system is trained only on clean, accurate, and reliable data, improving model quality and system stability.
+
