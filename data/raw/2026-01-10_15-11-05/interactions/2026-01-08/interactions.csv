@@ -1,0 +1,5 @@
+user_id,product_id,event_type,timestamp
+U001,P101,click,2025-12-01 10:05:23
+U001,P102,view,2025-12-01 10:06:10
+U002,P103,add_to_cart,2025-12-01 11:15:45
+U003,P104,click,2025-12-02 09:30:12
