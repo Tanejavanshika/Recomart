@@ -1,0 +1,43 @@
+# DVC Pipeline Configuration
+# Defines data versioning and pipeline stages
+
+stages:
+  ingest:
+    cmd: python ingestion/ingest_data.py
+    deps:
+      - ingestion/ingest_data.py
+    outs:
+      - data/raw/
+  
+  validate:
+    cmd: python validation/validate_data.py
+    deps:
+      - validation/validate_data.py
+      - data/raw/
+    outs:
+      - data/validated/
+  
+  prepare:
+    cmd: jupyter nbconvert --to notebook --execute preparation/clean_eda.ipynb
+    deps:
+      - preparation/clean_eda.ipynb
+      - data/validated/
+    outs:
+      - data/processed/
+  
+  transform:
+    cmd: python transformation/feature_engineering.py
+    deps:
+      - transformation/feature_engineering.py
+      - data/processed/
+    outs:
+      - data/features/
+  
+  train:
+    cmd: python model/train_model.py
+    deps:
+      - model/train_model.py
+      - data/features/
+    outs:
+      - model/artifacts/
+
