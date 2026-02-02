@@ -1,0 +1,205 @@
+# **Task 2: Data Collection and Ingestion**
+
+## 2.1 Overview
+
+To support RecoMart’s recommendation system, a robust data ingestion pipeline was designed to collect user behavior, transaction data, product metadata, and external popularity signals from multiple sources. Since direct access to RecoMart’s production systems is not available, synthetic datasets were created to simulate real-world e-commerce data.
+
+The ingestion pipeline is responsible for automatically collecting data from these sources, storing it in a structured raw data lake, and maintaining logs for monitoring and auditing purposes.
+
+---
+
+## 2.2 Data Sources
+
+The following datasets were created to simulate RecoMart’s data ecosystem:
+
+| Data Source           | Description                       | Format | Key Attributes                                         |
+| --------------------- | --------------------------------- | ------ | ------------------------------------------------------ |
+| User Interaction Data | Clicks, views, add-to-cart events | CSV    | user_id, product_id, event_type, timestamp             |
+| Transaction Data      | Purchase history                  | CSV    | user_id, product_id, quantity, price, transaction_date |
+| Product Metadata      | Product catalog                   | JSON   | product_id, category, brand, price                     |
+| External Signals      | Product popularity scores         | CSV    | product_id, popularity_score                           |
+
+These datasets closely resemble real-world e-commerce platforms where user activity, purchases, and product information are collected continuously.
+
+---
+
+## 2.3 Ingestion Architecture
+
+The ingestion pipeline follows a modular and automated design:
+
+```
+Source Data  →  Ingestion Script  →  Raw Data Lake (Timestamped Storage)
+```
+
+The pipeline performs the following steps:
+
+1. Reads data from multiple source formats (CSV and JSON)
+2. Creates a timestamped folder for every ingestion run
+3. Copies all source datasets into the raw data lake
+4. Logs ingestion status for monitoring and auditing
+5. Handles failures using exception handling
+
+This architecture simulates production-grade batch ingestion used in modern data platforms.
+
+---
+
+## 2.4 Raw Data Storage Design
+
+A local filesystem-based data lake is used to store ingested data. Each ingestion run creates a new timestamped directory to ensure traceability and data versioning.
+
+### Folder Structure
+
+```
+data/raw/{YYYY-MM-DD_HH-MM-SS}/
+    ├── user_interactions.csv
+    ├── transactions.csv
+    ├── products.json
+    └── external_signals.csv
+```
+
+### Example
+
+```
+data/raw/2025-01-10_10-45-20/
+    user_interactions.csv
+    transactions.csv
+    products.json
+    external_signals.csv
+```
+
+This design mimics cloud-based data lakes such as AWS S3 or Azure Data Lake, where data is partitioned by ingestion time.
+
+---
+
+## 2.5 Automation and Scheduling
+
+The ingestion process is implemented as a Python script and can be scheduled using tools such as:
+
+* Cron jobs
+* Apache Airflow
+* Prefect
+
+This enables periodic ingestion of fresh data, ensuring that the recommendation system always trains on the latest available information.
+
+---
+
+## 2.6 Logging and Error Handling
+
+A logging mechanism is implemented to track ingestion activity and failures.
+
+* Successful file ingestion is logged
+* Errors are captured and written to log files
+* Logs provide auditability and operational visibility
+
+### Sample Log Entry
+
+```
+2025-01-10 10:45:20 - INFO - Successfully ingested user_interactions.csv
+2025-01-10 10:45:20 - INFO - Successfully ingested transactions.csv
+```
+
+In case of failure, detailed error messages are recorded for debugging and recovery.
+
+---
+
+## 2.7 Summary
+
+The data ingestion pipeline provides a scalable and maintainable foundation for RecoMart’s recommendation system. By supporting multi-source ingestion, automated execution, timestamped storage, and operational logging, the pipeline ensures that fresh and reliable data is always available for downstream analytics and model training.
+
+# **Task 3: Raw Data Storage
+3.1 Overview
+
+A raw data lake is implemented to store all ingested datasets in their original format before any transformation or processing is applied. This layer serves as the single source of truth for the entire data pipeline and enables reproducibility, auditing, and reprocessing.
+
+The data lake is implemented using a local filesystem, simulating cloud-based storage systems such as AWS S3 or Azure Data Lake.
+
+3.2 Storage Architecture
+
+The storage architecture follows a partitioned, timestamp-based directory structure. Each ingestion run creates a new folder, which contains a full snapshot of all data sources.
+
+Storage Design
+data/raw/{YYYY-MM-DD_HH-MM-SS}/
+    ├── user_interactions.csv
+    ├── transactions.csv
+    ├── products.json
+    └── external_signals.csv
+
+
+Each folder represents a single batch ingestion.
+
+3.3 Design Principles
+
+The raw data storage layer follows these design principles:
+
+Immutable Storage: Raw data is never modified after ingestion
+
+Partitioning by Time: Enables efficient tracking and rollback
+
+Schema Preservation: Data is stored exactly as received
+
+Scalability: Can be easily migrated to cloud object storage
+
+3.4 Benefits
+
+This design enables:
+
+Historical data tracking
+
+Reprocessing of past data if needed
+
+Debugging and auditing of ingestion runs
+
+Support for machine learning reproducibility
+
+3.5 Summary
+
+The raw data lake provides a robust foundation for the recommendation system pipeline. By preserving original data in a structured and versioned format, it ensures reliable downstream validation, transformation, and model training.
+
+## Task 4: Data Profiling and Validation
+4.1 Overview
+
+A data profiling and validation layer was implemented to ensure that only high-quality data is consumed by the recommendation system. This layer acts as a quality gate between the raw data lake and downstream analytics and machine learning pipelines.
+
+4.2 Validation Checks
+
+The following automated validation checks were implemented:
+
+Missing value detection
+
+Duplicate record detection
+
+Schema verification
+
+Range validation for numeric fields
+
+4.3 Validation Architecture
+Raw Data  →  Validation Engine  →  Validated Data Layer
+
+
+Only validated datasets are promoted to the next stage of the pipeline.
+
+4.4 Validated Data Storage
+
+Validated datasets are stored separately:
+
+data/validated/
+    ├── user_interactions.csv
+    └── transactions.csv
+
+
+This ensures downstream processes only use trusted data.
+
+4.5 Benefits
+
+Prevents corrupt data from entering models
+
+Improves data reliability
+
+Enables auditability and traceability
+
+Supports reproducibility
+
+4.6 Summary
+
+The validation layer ensures RecoMart’s recommendation system is trained only on clean, accurate, and reliable data, improving model quality and system stability.
+
